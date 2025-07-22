@@ -1,0 +1,229 @@
+
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8">
+  <title>Fitrecipe – Hellmill</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #000;
+      color: #fff;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background: #111;
+      color: #0ff0fc;
+      text-align: center;
+      padding: 20px;
+    }
+    section {
+      max-width: 650px;
+      margin: auto;
+      padding: 20px;
+      background: #1b1b1b;
+      border-radius: 12px;
+      margin-top: 20px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.4);
+    }
+    h2 {
+      color: #0ff0fc;
+    }
+    .button {
+      background: #0ff0fc;
+      color: #000;
+      padding: 10px 16px;
+      margin: 5px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .button:disabled {
+      background: grey;
+    }
+    .motivation, .checklist, .stats, .leaderboard, .profile, .settings {
+      padding: 10px;
+      background: #2a2a2a;
+      border-radius: 10px;
+      margin-bottom: 10px;
+    }
+    .checklist label {
+      display: block;
+      margin: 4px 0;
+    }
+    input[type='text'] {
+      padding: 8px;
+      width: 80%;
+      margin-top: 5px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>🔥 Fitrecipe – Hellmill</h1>
+  <p>Mobilos motiváció & edzés app</p>
+</header>
+
+<section>
+  <h2>💬 Motiváció</h2>
+  <div id="motivation" class="motivation">Töltés...</div>
+  <button onclick="generateMessage()" class="button">🔁 Új üzenet</button>
+</section>
+
+<section>
+  <h2>📅 Heti edzésterv</h2>
+  <div class="motivation">
+    <ul>
+      <li>Hétfő: Tabata + Has</li>
+      <li>Kedd: Pihenő</li>
+      <li>Szerda: Erősítés</li>
+      <li>Csütörtök: 30 kör futás</li>
+      <li>Péntek: Tabata + Has</li>
+      <li>Szombat: Teljes test</li>
+      <li>Vasárnap: Nyújtás / séta</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <h2>☑️ Napi checklist</h2>
+  <div class="checklist">
+    <label><input type="checkbox"> Tabata kész</label>
+    <label><input type="checkbox"> 30 kör futás</label>
+    <label><input type="checkbox"> Nyújtás</label>
+  </div>
+</section>
+
+<section>
+  <h2>⏱️ Időzítő (Tabata)</h2>
+  <div class="motivation">
+    <label>Válassz körszámot:</label><br>
+    <button onclick="setRounds(10)" class="button">10 kör</button>
+    <button onclick="setRounds(20)" class="button">20 kör</button>
+    <button onclick="setRounds(30)" class="button">30 kör</button>
+    <button onclick="setRounds(40)" class="button">40 kör</button><br><br>
+    <div id="timerStatus">0 / 0 kör</div>
+    <div id="timerDisplay">00:00</div>
+    <button onclick="startTabata()" class="button">▶️ Start</button>
+    <button onclick="stopTabata()" class="button">⏹ Stop</button>
+  </div>
+</section>
+
+<section>
+  <h2>📊 Heti statisztika</h2>
+  <div class="stats" id="weeklyStats">
+    Edzések: <strong>0</strong><br>
+    Összes kör: <strong>0</strong><br>
+    Össz idő: <strong>0 perc</strong>
+  </div>
+</section>
+
+<section>
+  <h2>🏆 Ranglista</h2>
+  <div class="leaderboard">
+    <ol>
+      <li>Levente – 920 pont</li>
+      <li>Anna – 780 pont</li>
+      <li>Márk – 640 pont</li>
+    </ol>
+  </div>
+</section>
+
+<section>
+  <h2>👤 Profil</h2>
+  <div class="profile">
+    Név: <input type="text" id="profileName" placeholder="Írd be a neved">
+  </div>
+</section>
+
+<section>
+  <h2>⚙️ Beállítások</h2>
+  <div class="settings">
+    <label><input type="radio" name="theme" onclick="alert('A színváltás a következő verzióban lesz elérhető!')" checked> Fekete/neon</label><br>
+    <label><input type="radio" name="theme" disabled> Világos (hamarosan)</label>
+  </div>
+</section>
+
+<script>
+  const messages = [
+    "Ne add fel – minden lépés közelebb visz a célhoz!",
+    "A legnagyobb harc a saját határaid átlépése.",
+    "Ma is egy lehetőség, hogy jobbá válj!",
+    "Fuss, míg el nem felejted, miért kezdted.",
+    "Nincs olyan, hogy lehetetlen – csak kihívás!"
+  ];
+
+  function generateMessage() {
+    const m = messages[Math.floor(Math.random() * messages.length)];
+    document.getElementById("motivation").innerText = m;
+  }
+
+  // Tabata timer
+  let rounds = 0;
+  let currentRound = 0;
+  let isRunning = false;
+  let interval;
+  let mode = 'run';
+  let seconds = 0;
+
+  function setRounds(r) {
+    rounds = r;
+    currentRound = 0;
+    document.getElementById("timerStatus").innerText = `0 / ${rounds} kör`;
+  }
+
+  function startTabata() {
+    stopTabata();
+    isRunning = true;
+    currentRound = 0;
+    seconds = 30;
+    mode = 'run';
+    interval = setInterval(runTabata, 1000);
+  }
+
+  function stopTabata() {
+    clearInterval(interval);
+    isRunning = false;
+  }
+
+  function runTabata() {
+    document.getElementById("timerDisplay").innerText = `00:${String(seconds).padStart(2, '0')}`;
+    seconds--;
+    if (seconds < 0) {
+      if (mode === 'run') {
+        mode = 'rest';
+        seconds = 60;
+      } else {
+        mode = 'run';
+        seconds = 30;
+        currentRound++;
+        document.getElementById("timerStatus").innerText = `${currentRound} / ${rounds} kör`;
+        updateStats();
+        if (currentRound >= rounds) {
+          stopTabata();
+          alert("Kész vagy!");
+        }
+      }
+    }
+  }
+
+  function updateStats() {
+    let s = document.getElementById("weeklyStats");
+    let match = s.innerHTML.match(/Összes kör: <strong>(\d+)<\/strong>/);
+    let matchTime = s.innerHTML.match(/Össz idő: <strong>(\d+)/);
+    let count = match ? parseInt(match[1]) : 0;
+    let time = matchTime ? parseInt(matchTime[1]) : 0;
+    count++;
+    time += 1.5;
+    s.innerHTML = `Edzések: <strong>1</strong><br>Összes kör: <strong>${count}</strong><br>Össz idő: <strong>${Math.round(time)} perc</strong>`;
+  }
+
+  generateMessage();
+</script>
+
+</body>
+</html>
