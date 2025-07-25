@@ -1,0 +1,17 @@
+name: fitrecipe
+description: A minimal mobile version of the Fitrecipe – Hellmill app
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: '>=2.18.0 <3.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  hive: ^2.0.0
+  hive_flutter: ^1.1.0
+  path_provider: ^2.0.0
+
+flutter:
+  uses-material-design: true
